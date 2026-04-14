@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ulasan Pelanggan — SAMBELKU</title>
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* RATING OVERVIEW */
+    .rating-overview { background: var(--coklat); padding: 60px 80px; display: grid; grid-template-columns: auto 1fr; gap: 80px; align-items: center; }
+    .rating-big { text-align: center; }
+    .rating-num { font-family: 'Bebas Neue', sans-serif; font-size: 96px; color: var(--kuning); line-height: 1; }
+    .rating-stars { font-size: 32px; color: var(--kuning); letter-spacing: 4px; }
+    .rating-total { color: #706050; font-size: 14px; margin-top: 8px; }
+    .rating-bars { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .bar-row { display: flex; align-items: center; gap: 16px; }
+    .bar-label { color: #B0A090; font-size: 14px; font-weight: 600; min-width: 60px; }
+    .bar-track { flex: 1; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--kuning); border-radius: 5px; transition: width 1s ease; }
+    .bar-count { color: #706050; font-size: 13px; min-width: 40px; text-align: right; }
+
+    /* FILTER ULASAN */
+    .ulasan-filter { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+    .uf-btn { padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #E8E0D0; background: white; color: var(--coklat); transition: all 0.2s; }
+    .uf-btn:hover, .uf-btn.active { background: var(--kuning); border-color: var(--kuning); }
+
+    /* ULASAN GRID */
+    .ulasan-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .ulasan-card { background: white; border-radius: 16px; padding: 28px; border: 2px solid #E8E0D0; transition: border-color 0.25s, box-shadow 0.25s; }
+    .ulasan-card:hover { border-color: var(--kuning); box-shadow: 0 8px 32px rgba(247,194,0,0.15); }
+    .ulasan-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .ulasan-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--kuning); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .ulasan-name { font-weight: 700; font-size: 15px; color: var(--coklat); }
+    .ulasan-info { font-size: 12px; color: #907060; margin-top: 2px; }
+    .ulasan-stars { color: var(--kuning); font-size: 16px; letter-spacing: 2px; margin-bottom: 8px; }
+    .ulasan-produk { display: inline-block; background: var(--abu); color: var(--merah); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 10px; margin-bottom: 12px; }
+    .ulasan-text { font-size: 14px; color: #706050; line-height: 1.7; font-style: italic; }
+    .ulasan-foto { margin-top: 16px; display: flex; gap: 8px; }
+    .ulasan-foto-img { width: 64px; height: 64px; border-radius: 8px; background: var(--abu); display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; }
+    .ulasan-foto-img img { width: 100%; height: 100%; object-fit: cover; }
+    .ulasan-verified { display: flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 12px; color: #4CAF50; font-weight: 600; }
+
+    /* FORM ULASAN */
+    .form-ulasan { background: var(--abu); border-radius: 20px; padding: 48px; max-width: 700px; margin: 0 auto; }
+    .form-ulasan h3 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--coklat); margin-bottom: 8px; }
+    .form-ulasan p { color: #907060; font-size: 14px; margin-bottom: 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-field label { font-size: 13px; font-weight: 600; color: var(--coklat); letter-spacing: 0.5px; }
+    .form-field input, .form-field select, .form-field textarea {
+      padding: 12px 16px; border: 2px solid #E8E0D0; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--coklat);
+      background: white; outline: none; transition: border-color 0.2s;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--kuning); }
+    .form-field textarea { resize: vertical; min-height: 120px; }
+    .star-select { display: flex; gap: 8px; }
+    .star-btn { font-size: 28px; cursor: pointer; opacity: 0.3; transition: opacity 0.2s, transform 0.15s; }
+    .star-btn.active, .star-btn:hover { opacity: 1; transform: scale(1.2); }
+    .btn-submit { background: var(--kuning); border: none; padding: 14px 40px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; color: var(--coklat); transition: background 0.2s; }
+    .btn-submit:hover { background: var(--kuning-gelap); }
+
+    /* HIGHLIGHT */
+    .highlight-band { background: var(--kuning); padding: 40px 80px; display: flex; gap: 60px; justify-content: center; flex-wrap: wrap; }
+    .highlight-item { text-align: center; }
+    .highlight-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--coklat); line-height: 1; }
+    .highlight-label { font-size: 14px; color: rgba(61,28,2,0.7); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="index.html">🌶 SAMBELKU</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Beranda</a></li>
+    <li><a href="produk.html">Produk</a></li>
+    <li><a href="tentang.html">Tentang Kami</a></li>
+    <li><a href="ulasan.html">Ulasan</a></li>
+    <li><a href="kontak.html">Kontak</a></li>
+  </ul>
+  <button class="btn-cart" id="btnCart">
+    🛒 Keranjang <span class="cart-count" id="cartCount" style="display:none">0</span>
+  </button>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="breadcrumb"><a href="index.html">Beranda</a> <span>›</span> <span>Ulasan</span></div>
+  <div class="page-header-label">Suara Pelanggan</div>
+  <h1>ULASAN <span>NYATA</span></h1>
+  <p>Apa kata mereka yang sudah mencicipi SAMBELKU? Ribuan pelanggan telah berbagi cerita mereka.</p>
+</div>
+
+<!-- RATING OVERVIEW -->
+<div class="rating-overview">
+  <div class="rating-big">
+    <div class="rating-num">4.9</div>
+    <div class="rating-stars">★★★★★</div>
+    <div class="rating-total">dari 1.240+ ulasan</div>
+  </div>
+  <div class="rating-bars" id="ratingBars">
+    <div class="bar-row"><span class="bar-label">⭐ 5</span><div class="bar-track"><div class="bar-fill" style="width:0%" data-target="92%"></div></div><span class="bar-count">1.140</span></div>
+    <div class="bar-row"><span class="bar-label">⭐ 4</span><div class="bar-track"><div class="bar-fill" style="width:0%" data-target="6%"></div></div><span class="bar-count">74</span></div>
+    <div class="bar-row"><span class="bar-label">⭐ 3</span><div class="bar-track"><div class="bar-fill" style="width:0%" data-target="1%"></div></div><span class="bar-count">15</span></div>
+    <div class="bar-row"><span class="bar-label">⭐ 2</span><div class="bar-track"><div class="bar-fill" style="width:0%" data-target="0.5%"></div></div><span class="bar-count">7</span></div>
+    <div class="bar-row"><span class="bar-label">⭐ 1</span><div class="bar-track"><div class="bar-fill" style="width:0%" data-target="0.3%"></div></div><span class="bar-count">4</span></div>
+  </div>
+</div>
+
+<!-- HIGHLIGHT -->
+<div class="highlight-band">
+  <div class="highlight-item"><div class="highlight-num">98%</div><div class="highlight-label">Pelanggan Puas</div></div>
+  <div class="highlight-item"><div class="highlight-num">1.2K+</div><div class="highlight-label">Total Ulasan</div></div>
+  <div class="highlight-item"><div class="highlight-num">95%</div><div class="highlight-label">Beli Lagi</div></div>
+  <div class="highlight-item"><div class="highlight-num">4.9★</div><div class="highlight-label">Rating Rata-rata</div></div>
+</div>
+
+<!-- ULASAN PELANGGAN -->
+<section class="section">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">Cerita Mereka</div>
+      <h2 class="section-title">Kata <em>Pelanggan</em> Kami</h2>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="ulasan-filter reveal">
+    <button class="uf-btn active" onclick="filterUlasan('semua',this)">Semua</button>
+    <button class="uf-btn" onclick="filterUlasan('sambal',this)">Sambal</button>
+    <button class="uf-btn" onclick="filterUlasan('bawang',this)">Bawang Goreng</button>
+    <button class="uf-btn" onclick="filterUlasan('hamper',this)">Hamper</button>
+    <button class="uf-btn" onclick="filterUlasan('5',this)">★★★★★ saja</button>
+  </div>
+
+  <div class="ulasan-grid" id="ulasanGrid">
+    <!-- Dirender oleh JS -->
+  </div>
+</section>
+
+<!-- FORM ULASAN -->
+<section class="section" style="background: var(--abu);">
+  <div class="section-header reveal" style="margin-bottom: 40px;">
+    <div>
+      <div class="section-label">Bagikan Ceritamu</div>
+      <h2 class="section-title">Tulis <em>Ulasanmu</em></h2>
+    </div>
+  </div>
+  <div class="form-ulasan reveal">
+    <h3>Sudah mencoba SAMBELKU?</h3>
+    <p>Ceritakan pengalamanmu dan bantu pembeli lain memilih produk yang tepat!</p>
+    <div class="form-row">
+      <div class="form-field"><label>Nama Lengkap *</label><input type="text" placeholder="Nama kamu" /></div>
+      <div class="form-field"><label>Kota *</label><input type="text" placeholder="Kota asal" /></div>
+    </div>
+    <div class="form-field">
+      <label>Produk yang Diulas *</label>
+      <select>
+        <option value="">— Pilih Produk —</option>
+        <option>Sambal Bajak Original</option>
+        <option>Sambal Roa Manado</option>
+        <option>Sambal Tomat Segar</option>
+        <option>Sambal Geprek Extra</option>
+        <option>Bawang Goreng Crispy</option>
+        <option>Bawang Goreng Pedas</option>
+        <option>Bawang Goreng Premium</option>
+        <option>Hamper Nusantara</option>
+        <option>Hamper Komplit</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Rating *</label>
+      <div class="star-select" id="starSelect">
+        <span class="star-btn" onclick="setRating(1)">★</span>
+        <span class="star-btn" onclick="setRating(2)">★</span>
+        <span class="star-btn" onclick="setRating(3)">★</span>
+        <span class="star-btn" onclick="setRating(4)">★</span>
+        <span class="star-btn" onclick="setRating(5)">★</span>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Ulasan *</label>
+      <textarea placeholder="Ceritakan pengalamanmu menggunakan produk SAMBELKU..."></textarea>
+    </div>
+    <button class="btn-submit" onclick="submitUlasan()">Kirim Ulasan →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a class="footer-logo" href="index.html">🌶 SAMBELKU</a>
+      <p class="footer-tagline">Sambal otentik & bawang goreng crispy dari dapur tradisional Nusantara.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="#">📘</a><a class="social-btn" href="#">📸</a>
+        <a class="social-btn" href="#">🎵</a><a class="social-btn" href="#">▶️</a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Produk</h4><ul>
+      <li><a href="produk.html?filter=sambal">Sambal</a></li>
+      <li><a href="produk.html?filter=bawang">Bawang Goreng</a></li>
+      <li><a href="produk.html?filter=hamper">Paket Hamper</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Informasi</h4><ul>
+      <li><a href="tentang.html">Tentang Kami</a></li>
+      <li><a href="ulasan.html">Ulasan</a></li>
+      <li><a href="kontak.html">Kontak</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Bantuan</h4><ul>
+      <li><a href="kontak.html">Hubungi Kami</a></li>
+      <li><a href="kontak.html#faq">FAQ</a></li>
+      <li><a href="#">Lacak Pesanan</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 SAMBELKU. All Rights Reserved.</span>
+    <div class="footer-pay">
+      <span class="pay-badge">GoPay</span><span class="pay-badge">OVO</span>
+      <span class="pay-badge">QRIS</span><span class="pay-badge">Transfer</span>
+    </div>
+  </div>
+</footer>
+
+<div class="cart-overlay-bg" id="cartOverlayBg" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header"><div class="cart-title">🛒 Keranjang</div><button class="cart-close" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-subtotal"><span>Total</span><strong id="cartTotal">Rp 0</strong></div>
+    <button class="btn-checkout" onclick="showToast('🎉 Checkout segera hadir!')">Checkout →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+  // [ULASAN] Data ulasan pelanggan — tambah/edit di sini
+  const ulasanData = [
+    { nama:"Dewi Rahayu", kota:"Jakarta Selatan", avatar:"👩", rating:5, produk:"Sambal Bajak Original", kategori:"sambal", teks:"Sambal bajak-nya enak banget! Pedesnya pas, aromanya harum. Udah jadi langganan tiap bulan. Packagingnya juga rapi dan higienis banget.", verified:true },
+    { nama:"Budi Santoso", kota:"Surabaya", avatar:"👨", rating:5, produk:"Sambal Roa Manado", kategori:"sambal", teks:"Sambal Roa-nya otentik banget! Anak saya yang dari Manado langsung bilang mirip buatan neneknya. Highly recommended!", verified:true },
+    { nama:"Rina Kusuma", kota:"Bandung", avatar:"👩", rating:5, produk:"Hamper Nusantara", kategori:"hamper", teks:"Pesan buat hamper lebaran, respons CS cepat, produk dikemas cantik. Penerima hamper suka banget. Pasti pesan lagi!", verified:true },
+    { nama:"Agus Firmansyah", kota:"Medan", avatar:"👨", rating:5, produk:"Bawang Goreng Crispy", kategori:"bawang", teks:"Bawang gorengnya krenyes banget! Sudah coba banyak merk tapi ini yang paling enak dan tahan lama crispynya. Wajib beli!", verified:true },
+    { nama:"Sari Indah", kota:"Yogyakarta", avatar:"👩", rating:5, produk:"Sambal Geprek Extra", kategori:"sambal", teks:"Cocok banget buat yang suka pedas level dewa kayak saya. Rasa bawang gorengnya gurih, cabainya nampol. 10/10!", verified:true },
+    { nama:"Hendra Wijaya", kota:"Semarang", avatar:"👨", rating:4, produk:"Bawang Goreng Pedas", kategori:"bawang", teks:"Bawang goreng pedasnya unik, belum pernah ketemu yang begini. Jadi favorit suami. Pengiriman juga cepat dan aman.", verified:true },
+    { nama:"Fitri Handayani", kota:"Makassar", avatar:"👩", rating:5, produk:"Sambal Matah Bali", kategori:"sambal", teks:"Nemu sambal matah yang beneran segar dan aromanya harus! Serai-nya terasa banget. Cocok banget buat ikan bakar.", verified:true },
+    { nama:"Rizky Pratama", kota:"Balikpapan", avatar:"👨", rating:5, produk:"Hamper Komplit", kategori:"hamper", teks:"Beli buat kado ulang tahun mertua, beliau suka banget. Packaging-nya premium, isinya lengkap. Worth every penny!", verified:true },
+    { nama:"Lestari Wulandari", kota:"Malang", avatar:"👩", rating:5, produk:"Bawang Goreng Premium", kategori:"bawang", teks:"Bawang goreng Brebes beneran beda kualitasnya. Ukuran besar-besar, renyah, harum. Langsung order 3 toples sekaligus!", verified:true },
+  ];
+
+  let currentFilter = 'semua';
+  let selectedRating = 0;
+
+  function renderUlasan() {
+    let data = [...ulasanData];
+    if (currentFilter === '5') data = data.filter(u => u.rating === 5);
+    else if (currentFilter !== 'semua') data = data.filter(u => u.kategori === currentFilter);
+    const grid = document.getElementById('ulasanGrid');
+    grid.innerHTML = data.map(u => `
+      <div class="ulasan-card">
+        <div class="ulasan-header">
+          <div class="ulasan-avatar">${u.avatar}</div>
+          <div>
+            <div class="ulasan-name">${u.nama}</div>
+            <div class="ulasan-info">📍 ${u.kota}</div>
+          </div>
+        </div>
+        <div class="ulasan-stars">${'★'.repeat(u.rating)}${'☆'.repeat(5-u.rating)}</div>
+        <div class="ulasan-produk">${u.produk}</div>
+        <p class="ulasan-text">"${u.teks}"</p>
+        ${u.verified ? `<div class="ulasan-verified">✅ Pembelian Terverifikasi</div>` : ''}
+      </div>`).join('');
+  }
+
+  function filterUlasan(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.uf-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    renderUlasan();
+  }
+
+  function setRating(r) {
+    selectedRating = r;
+    document.querySelectorAll('.star-btn').forEach((b,i) => b.classList.toggle('active', i < r));
+  }
+
+  function submitUlasan() { showToast('✅ Ulasan terkirim! Terima kasih 🎉'); }
+
+  // Animate rating bars
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target;
+      });
+    }, 300);
+    renderUlasan();
+  });
+</script>
+</body>
+</html>
